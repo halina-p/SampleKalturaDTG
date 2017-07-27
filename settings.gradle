@@ -1,0 +1,5 @@
+include ':app'
+include ':googlemediaframework'
+include ':playerSDK'
+//project(':googlemediaframework').projectDir=new File('../googlemediaframework')
+//project(':playerSDK').projectDir=new File('../playerSDK')

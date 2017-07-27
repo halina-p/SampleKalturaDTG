@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "D:\\SampleKalturaDTG\\playerSDK\\build\\intermediates\\res\\merged\\debug\\menu\\menu_kinternal_browser.xml",
+        "source": "D:\\SampleKalturaDTG\\playerSDK\\src\\main\\res\\menu\\menu_kinternal_browser.xml"
+    },
+    {
+        "merged": "D:\\SampleKalturaDTG\\playerSDK\\build\\intermediates\\res\\merged\\debug\\menu\\menu_browser.xml",
+        "source": "D:\\SampleKalturaDTG\\playerSDK\\src\\main\\res\\menu\\menu_browser.xml"
+    }
+]
