@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity implements KPErrorEventListe
 
     private List<Item> items;
     private ItemsAdapter adapter;
+    private ListView listView;
 
     private DownloadStateListener downloadStateListener;
 
@@ -66,16 +67,18 @@ public class MainActivity extends AppCompatActivity implements KPErrorEventListe
         downloadStateListener = new DownloadStateListener() {
             @Override
             public void onDownloadComplete(final DownloadItem downloadItem) {
-                Item item = findItem(downloadItem.getItemId());
+                int itemPosition = findItemPosition(downloadItem.getItemId());
+                Item item = items.get(itemPosition);
                 item.setState(DownloadState.COMPLETED);
-                notifyAdapter();
+                updateView(itemPosition);
             }
 
             @Override
             public void onProgressChange(final DownloadItem downloadItem, final long downloadedBytes) {
-                Item item = findItem(downloadItem.getItemId());
+                int itemPosition = findItemPosition(downloadItem.getItemId());
+                Item item = items.get(itemPosition);
                 item.setProgress((int) (100 * (double) downloadedBytes / (double) downloadItem.getEstimatedSizeBytes()));
-                notifyAdapter();
+                updateView(itemPosition);
             }
 
             @Override
@@ -169,7 +172,7 @@ public class MainActivity extends AppCompatActivity implements KPErrorEventListe
         items.add(new Item(config, key, remoteUrl));
 
         adapter = new ItemsAdapter(this, items);
-        ListView listView = (ListView) findViewById(R.id.items_list);
+        listView = (ListView) findViewById(R.id.items_list);
         listView.setAdapter(adapter);
     }
 
@@ -197,13 +200,28 @@ public class MainActivity extends AppCompatActivity implements KPErrorEventListe
         return mContentManager.getLocalFile(item.getDownloadItemId()).getAbsolutePath();
     }
 
-    private Item findItem(String itemId) {
-        for (Item item : items) {
-            if (itemId.equals(item.getDownloadItemId())) {
-                return item;
+    private int findItemPosition(String itemId) {
+        for (int i = 0; i < items.size(); i++) {
+            if (itemId.equals(items.get(i).getDownloadItemId())) {
+                return i;
             }
         }
         throw new RuntimeException("Unknown item id: " + itemId);
+    }
+
+    private void updateView(final int index) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                View view = listView.getChildAt(index - listView.getFirstVisiblePosition());
+
+                if (view == null) {
+                    return;
+                }
+
+                listView.getAdapter().getView(index, view, listView);
+            }
+        });
     }
 
     private void notifyAdapter() {
@@ -289,6 +307,11 @@ public class MainActivity extends AppCompatActivity implements KPErrorEventListe
                 convertView.setTag(holder);
             } else {
                 holder = (ViewHolder) convertView.getTag();
+
+                holder.startDownloadButton.setOnClickListener(new OnStartClickListener(position));
+                holder.pauseDownloadButton.setOnClickListener(new OnPauseClickListener(position));
+                holder.stopDownloadButton.setOnClickListener(new OnStopClickListener(position));
+                holder.playButton.setOnClickListener(new OnPlayClickListener(position));
             }
 
             holder.name.setText(item.name);
