@@ -123,11 +123,9 @@ public class MainActivity extends AppCompatActivity implements KPErrorEventListe
         mContentManager.start(new ContentManager.OnStartedListener() {
             @Override
             public void onStarted() {
-
+                createItems();
             }
         });
-
-        createItems();
     }
 
     @Override
@@ -275,9 +273,9 @@ public class MainActivity extends AppCompatActivity implements KPErrorEventListe
             Button playButton = convertView.findViewById(R.id.item_button_play);
             ProgressBar progressBar = convertView.findViewById(R.id.item_progress);
 
-//            if (isDownloaded(item)) {
-//                item.setState(DownloadState.COMPLETED);
-//            }
+            if (isDownloaded(item)) {
+                item.setState(DownloadState.COMPLETED);
+            }
 
             switch (item.getState()) {
                 case NEW: {
