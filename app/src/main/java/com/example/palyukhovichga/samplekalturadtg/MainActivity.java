@@ -42,6 +42,8 @@ public class MainActivity extends AppCompatActivity implements KPErrorEventListe
     private List<Item> items;
     private ItemsAdapter adapter;
 
+    private DownloadStateListener downloadStateListener;
+
     private PlayerViewController.SourceURLProvider mSourceURLProvider = new PlayerViewController.SourceURLProvider() {
         @Override
         public String getURL(String entryId, String currentURL) {
@@ -61,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements KPErrorEventListe
 
         mPlayerContainer = (ViewGroup) findViewById(R.id.layout_player_container);
 
-        DownloadStateListener downloadStateListener = new DownloadStateListener() {
+        downloadStateListener = new DownloadStateListener() {
             @Override
             public void onDownloadComplete(final DownloadItem downloadItem) {
                 Item item = findItem(downloadItem.getItemId());
@@ -129,6 +131,7 @@ public class MainActivity extends AppCompatActivity implements KPErrorEventListe
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        mContentManager.removeDownloadStateListener(downloadStateListener);
         mContentManager.stop();
     }
 
