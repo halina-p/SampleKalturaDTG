@@ -26,6 +26,7 @@ import com.kaltura.playersdk.events.KPStateChangedEventListener;
 import com.kaltura.playersdk.events.KPlayerState;
 import com.kaltura.playersdk.types.KPError;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -91,22 +92,23 @@ public class MainActivity extends AppCompatActivity implements KPErrorEventListe
                 Log.d(TAG, error.toString());
             }
 
-            // todo add track selection
             @Override
             public void onDownloadMetadata(DownloadItem item, Exception error) {
-                //DownloadItem.TrackSelector trackSelector = item.getTrackSelector();
+                DownloadItem.TrackSelector trackSelector = item.getTrackSelector();
 
-//                List<DownloadItem.Track> downloadedVideoTracks = trackSelector.getDownloadedTracks(DownloadItem.TrackType.VIDEO);
-//
-//                List<DownloadItem.Track> availableTracks = trackSelector.getAvailableTracks(DownloadItem.TrackType.AUDIO);
-//                if (availableTracks.size() > 0) {
-//                    trackSelector.setSelectedTracks(DownloadItem.TrackType.AUDIO, availableTracks);
-//                }
-//                try {
-//                    trackSelector.apply();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
+                if (trackSelector != null) {
+                    List<DownloadItem.Track> downloadedVideoTracks = trackSelector.getDownloadedTracks(DownloadItem.TrackType.VIDEO);
+
+                    List<DownloadItem.Track> availableTracks = trackSelector.getAvailableTracks(DownloadItem.TrackType.AUDIO);
+                    if (availableTracks.size() > 0) {
+                        trackSelector.setSelectedTracks(DownloadItem.TrackType.AUDIO, availableTracks);
+                    }
+                    try {
+                        trackSelector.apply();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
 
                 item.startDownload();
             }
