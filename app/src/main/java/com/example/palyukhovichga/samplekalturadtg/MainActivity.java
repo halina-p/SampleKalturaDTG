@@ -34,8 +34,6 @@ public class MainActivity extends AppCompatActivity implements KPErrorEventListe
 
     private static final String TAG = "MainActivity";
 
-    private boolean mPlayerDetached = true;
-
     private ContentManager mContentManager;
 
     private PlayerViewController mPlayer;
@@ -228,11 +226,9 @@ public class MainActivity extends AppCompatActivity implements KPErrorEventListe
             mPlayer.setOnKPErrorEventListener(this);
             mPlayer.setOnKPStateChangedEventListener(this);
 
-
         } else {
-            if (mPlayerDetached && mPlayer.getParent() == null) {
+            if (mPlayer.getParent() == null) {
                 mPlayerContainer.addView(mPlayer, new ViewGroup.LayoutParams(mPlayerContainer.getLayoutParams()));
-                mPlayerDetached = false;
             }
 
             mPlayer.changeConfiguration(config);
