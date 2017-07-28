@@ -148,7 +148,7 @@ public class MainActivity extends AppCompatActivity implements KPErrorEventListe
         items.add(new Item(config, key, remoteUrl));
 
         key = "count-dash-drm";
-        config = createConfig("0_uafvpmv", key);
+        config = createConfig("0_uafvpmv8", key);
         remoteUrl = "http://cfvod.kaltura.com/edash/p/1851571/sp/185157100/serveFlavor/entryId/0_uafvpmv8/v/2/flavorId/0_6ackygkg/forceproxy/true/name/a.mp4/manifest.mpd";
         items.add(new Item(config, key, remoteUrl));
 
