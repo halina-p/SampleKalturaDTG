@@ -340,6 +340,9 @@ public class MainActivity extends AppCompatActivity implements KPErrorEventListe
                 case PAUSED: {
                     holder.startDownloadButton.setEnabled(true);
                     holder.pauseDownloadButton.setEnabled(false);
+                    holder.stopDownloadButton.setEnabled(true);
+                    holder.playButton.setEnabled(false);
+                    holder.progressBar.setProgress(item.getProgress());
                     break;
                 }
                 case COMPLETED: {
