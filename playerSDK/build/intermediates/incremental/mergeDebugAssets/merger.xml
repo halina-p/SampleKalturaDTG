@@ -1,2 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<merger version="3"><dataSet config="main"><source path="D:\SampleKalturaDTG\playerSDK\src\main\assets"><file name="CachedStrings.json" path="D:\SampleKalturaDTG\playerSDK\src\main\assets\CachedStrings.json"/></source><source path="D:\SampleKalturaDTG\playerSDK\build\generated\assets\shaders\debug"/></dataSet><dataSet config="debug"><source path="D:\SampleKalturaDTG\playerSDK\src\debug\assets"/></dataSet></merger>
