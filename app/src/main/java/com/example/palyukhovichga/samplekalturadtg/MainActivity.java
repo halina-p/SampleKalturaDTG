@@ -247,6 +247,15 @@ public class MainActivity extends AppCompatActivity implements KPErrorEventListe
         Log.d(TAG, "onKPlayerError " + error.getException());
     }
 
+    private static class ViewHolder {
+        TextView name;
+        Button startDownloadButton;
+        Button pauseDownloadButton;
+        Button stopDownloadButton;
+        Button playButton;
+        ProgressBar progressBar;
+    }
+
     private class ItemsAdapter extends ArrayAdapter<Item> {
         public ItemsAdapter(Context context, List<Item> items) {
             super(context, R.layout.view_download_item, items);
@@ -256,18 +265,30 @@ public class MainActivity extends AppCompatActivity implements KPErrorEventListe
         @Override
         public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
             Item item = getItem(position);
+            ViewHolder holder;
 
             if (convertView == null) {
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.view_download_item_content, parent, false);
+
+                holder = new ViewHolder();
+                holder.name = convertView.findViewById(R.id.item_name);
+                holder.startDownloadButton = convertView.findViewById(R.id.item_button_start);
+                holder.pauseDownloadButton = convertView.findViewById(R.id.item_button_pause);
+                holder.stopDownloadButton = convertView.findViewById(R.id.item_button_stop);
+                holder.playButton = convertView.findViewById(R.id.item_button_play);
+                holder.progressBar = convertView.findViewById(R.id.item_progress);
+
+                holder.startDownloadButton.setOnClickListener(new OnStartClickListener(position));
+                holder.pauseDownloadButton.setOnClickListener(new OnPauseClickListener(position));
+                holder.stopDownloadButton.setOnClickListener(new OnStopClickListener(position));
+                holder.playButton.setOnClickListener(new OnPlayClickListener(position));
+
+                convertView.setTag(holder);
+            } else {
+                holder = (ViewHolder) convertView.getTag();
             }
 
-            ((TextView) convertView.findViewById(R.id.item_name)).setText(item.name);
-
-            Button startDownloadButton = convertView.findViewById(R.id.item_button_start);
-            Button pauseDownloadButton = convertView.findViewById(R.id.item_button_pause);
-            Button stopDownloadButton = convertView.findViewById(R.id.item_button_stop);
-            Button playButton = convertView.findViewById(R.id.item_button_play);
-            ProgressBar progressBar = convertView.findViewById(R.id.item_progress);
+            holder.name.setText(item.name);
 
             if (isDownloaded(item)) {
                 item.setState(DownloadState.COMPLETED);
@@ -275,42 +296,37 @@ public class MainActivity extends AppCompatActivity implements KPErrorEventListe
 
             switch (item.getState()) {
                 case NEW: {
-                    startDownloadButton.setEnabled(true);
-                    pauseDownloadButton.setEnabled(false);
-                    stopDownloadButton.setEnabled(false);
-                    playButton.setEnabled(false);
-                    progressBar.setProgress(0);
+                    holder.startDownloadButton.setEnabled(true);
+                    holder.pauseDownloadButton.setEnabled(false);
+                    holder.stopDownloadButton.setEnabled(false);
+                    holder.playButton.setEnabled(false);
+                    holder.progressBar.setProgress(0);
                     break;
                 }
                 case IN_PROGRESS: {
-                    startDownloadButton.setEnabled(false);
-                    pauseDownloadButton.setEnabled(true);
-                    stopDownloadButton.setEnabled(true);
-                    playButton.setEnabled(false);
-                    progressBar.setProgress(item.getProgress());
+                    holder.startDownloadButton.setEnabled(false);
+                    holder.pauseDownloadButton.setEnabled(true);
+                    holder.stopDownloadButton.setEnabled(true);
+                    holder.playButton.setEnabled(false);
+                    holder.progressBar.setProgress(item.getProgress());
                     break;
                 }
                 case PAUSED: {
-                    startDownloadButton.setEnabled(true);
-                    pauseDownloadButton.setEnabled(false);
+                    holder.startDownloadButton.setEnabled(true);
+                    holder.pauseDownloadButton.setEnabled(false);
                     break;
                 }
                 case COMPLETED: {
-                    startDownloadButton.setEnabled(false);
-                    pauseDownloadButton.setEnabled(false);
-                    stopDownloadButton.setEnabled(true);
-                    playButton.setEnabled(true);
-                    progressBar.setProgress(100);
+                    holder.startDownloadButton.setEnabled(false);
+                    holder.pauseDownloadButton.setEnabled(false);
+                    holder.stopDownloadButton.setEnabled(true);
+                    holder.playButton.setEnabled(true);
+                    holder.progressBar.setProgress(100);
                     break;
                 }
                 default:
                     break;
             }
-
-            startDownloadButton.setOnClickListener(new OnStartClickListener(position));
-            pauseDownloadButton.setOnClickListener(new OnPauseClickListener(position));
-            stopDownloadButton.setOnClickListener(new OnStopClickListener(position));
-            playButton.setOnClickListener(new OnPlayClickListener(position));
 
             return convertView;
         }
