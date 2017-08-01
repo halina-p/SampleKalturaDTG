@@ -275,6 +275,55 @@ public class MainActivity extends AppCompatActivity implements KPErrorEventListe
         Button stopDownloadButton;
         Button playButton;
         ProgressBar progressBar;
+        Item item;
+    }
+
+    private void startDownload(Item item) {
+        item.setState(DownloadState.IN_PROGRESS);
+        adapter.notifyDataSetChanged();
+
+        DownloadItem downloadItem = mContentManager.createItem(item.getDownloadItemId(), item.contentUrl);
+        if (downloadItem == null) {
+            downloadItem = mContentManager.findItem(item.getDownloadItemId());
+        }
+        if (downloadItem != null) {
+            downloadItem.loadMetadata();
+        }
+    }
+
+    private void pauseDownload(Item item) {
+        Log.d(TAG, "pause");
+
+        item.setState(DownloadState.PAUSED);
+        adapter.notifyDataSetChanged();
+
+        DownloadItem downloadItem = mContentManager.createItem(item.getDownloadItemId(), item.contentUrl);
+        if (downloadItem == null) {
+            downloadItem = mContentManager.findItem(item.getDownloadItemId());
+        }
+        if (downloadItem != null) {
+            downloadItem.pauseDownload();
+        }
+    }
+
+    private void stopDownload(Item item) {
+        Log.d(TAG, "stop");
+
+        item.setState(DownloadState.NEW);
+        item.setProgress(0);
+        adapter.notifyDataSetChanged();
+
+        DownloadItem downloadItem = mContentManager.createItem(item.getDownloadItemId(), item.contentUrl);
+        if (downloadItem == null) {
+            downloadItem = mContentManager.findItem(item.getDownloadItemId());
+        }
+        if (downloadItem != null) {
+            mContentManager.removeItem(item.getDownloadItemId());
+        }
+    }
+
+    private void play(Item item) {
+        getPlayer(item.config);
     }
 
     private class ItemsAdapter extends ArrayAdapter<Item> {
@@ -285,8 +334,8 @@ public class MainActivity extends AppCompatActivity implements KPErrorEventListe
         @NonNull
         @Override
         public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-            Item item = getItem(position);
-            ViewHolder holder;
+            final Item item = getItem(position);
+            final ViewHolder holder;
 
             if (convertView == null) {
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.view_download_item_content, parent, false);
@@ -298,20 +347,37 @@ public class MainActivity extends AppCompatActivity implements KPErrorEventListe
                 holder.stopDownloadButton = convertView.findViewById(R.id.item_button_stop);
                 holder.playButton = convertView.findViewById(R.id.item_button_play);
                 holder.progressBar = convertView.findViewById(R.id.item_progress);
+                holder.item = item;
 
-                holder.startDownloadButton.setOnClickListener(new OnStartClickListener(position));
-                holder.pauseDownloadButton.setOnClickListener(new OnPauseClickListener(position));
-                holder.stopDownloadButton.setOnClickListener(new OnStopClickListener(position));
-                holder.playButton.setOnClickListener(new OnPlayClickListener(position));
+                holder.startDownloadButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        startDownload(holder.item);
+                    }
+                });
+                holder.pauseDownloadButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        pauseDownload(holder.item);
+                    }
+                });
+                holder.stopDownloadButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        stopDownload(holder.item);
+                    }
+                });
+                holder.playButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        play(holder.item);
+                    }
+                });
 
                 convertView.setTag(holder);
             } else {
                 holder = (ViewHolder) convertView.getTag();
-
-                holder.startDownloadButton.setOnClickListener(new OnStartClickListener(position));
-                holder.pauseDownloadButton.setOnClickListener(new OnPauseClickListener(position));
-                holder.stopDownloadButton.setOnClickListener(new OnStopClickListener(position));
-                holder.playButton.setOnClickListener(new OnPlayClickListener(position));
+                holder.item = item;
             }
 
             holder.name.setText(item.name);
@@ -358,92 +424,6 @@ public class MainActivity extends AppCompatActivity implements KPErrorEventListe
             }
 
             return convertView;
-        }
-    }
-
-    private class OnPlayClickListener implements View.OnClickListener {
-        private int itemPosition;
-
-        public OnPlayClickListener(int itemPosition) {
-            this.itemPosition = itemPosition;
-        }
-        @Override
-        public void onClick(View view) {
-            Item item = items.get(itemPosition);
-            getPlayer(item.config);
-        }
-    }
-
-    private class OnStartClickListener implements View.OnClickListener {
-        private int itemPosition;
-
-        public OnStartClickListener(int itemPosition) {
-            this.itemPosition = itemPosition;
-        }
-
-        @Override
-        public void onClick(View view) {
-            Item item = items.get(itemPosition);
-            item.setState(DownloadState.IN_PROGRESS);
-            adapter.notifyDataSetChanged();
-
-            DownloadItem downloadItem = mContentManager.createItem(item.getDownloadItemId(), item.contentUrl);
-            if (downloadItem == null) {
-                downloadItem = mContentManager.findItem(item.getDownloadItemId());
-            }
-            if (downloadItem != null) {
-                downloadItem.loadMetadata();
-            }
-        }
-    }
-
-    private class OnPauseClickListener implements View.OnClickListener {
-        private int itemPosition;
-
-        public OnPauseClickListener(int itemPosition) {
-            this.itemPosition = itemPosition;
-        }
-        @Override
-        public void onClick(View view) {
-            Log.d(TAG, "pause");
-
-            Item item = items.get(itemPosition);
-            item.setState(DownloadState.PAUSED);
-            adapter.notifyDataSetChanged();
-
-            DownloadItem downloadItem = mContentManager.createItem(item.getDownloadItemId(), item.contentUrl);
-            if (downloadItem == null) {
-                downloadItem = mContentManager.findItem(item.getDownloadItemId());
-            }
-            if (downloadItem != null) {
-                downloadItem.pauseDownload();
-            }
-        }
-    }
-
-    private class OnStopClickListener implements View.OnClickListener {
-        private int itemPosition;
-
-        public OnStopClickListener(int itemPosition) {
-            this.itemPosition = itemPosition;
-        }
-
-        @Override
-        public void onClick(View view) {
-            Log.d(TAG, "stop");
-
-            Item item = items.get(itemPosition);
-            item.setState(DownloadState.NEW);
-            item.setProgress(0);
-            adapter.notifyDataSetChanged();
-
-            DownloadItem downloadItem = mContentManager.createItem(item.getDownloadItemId(), item.contentUrl);
-            if (downloadItem == null) {
-                downloadItem = mContentManager.findItem(item.getDownloadItemId());
-            }
-            if (downloadItem != null) {
-                mContentManager.removeItem(item.getDownloadItemId());
-            }
         }
     }
 }
