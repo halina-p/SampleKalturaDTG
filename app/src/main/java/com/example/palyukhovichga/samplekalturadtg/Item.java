@@ -31,19 +31,19 @@ public class Item {
         return config.getEntryId();
     }
 
-    public DownloadState getState() {
+    public synchronized DownloadState getState() {
         return state;
     }
 
-    public void setState(DownloadState state) {
+    public synchronized void setState(DownloadState state) {
         this.state = state;
     }
 
-    public int getProgress() {
+    public synchronized int getProgress() {
         return progress;
     }
 
-    public void setProgress(int progress) {
+    public synchronized void setProgress(int progress) {
         this.progress = progress;
     }
 }
